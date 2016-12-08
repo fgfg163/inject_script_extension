@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+  "name": "inject dom",
+  "version": "0.0.1",
+  "description": "注入标签到页面",
+  "permissions": [
+    "contextMenus",
+    "clipboardWrite",
+    "clipboardRead",
+    "storage"
+  ],
+  "browser_action": {
+    "default_icon": "images/icon.png",
+    "default_title": "inject dom",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "images/icon.png"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "index.js"
+      ]
+    }
+  ]
+}
