@@ -29,7 +29,8 @@
       ],
       "js": [
         "index.js"
-      ]
+      ],
+      "all_frames": true
     }
   ]
 }
