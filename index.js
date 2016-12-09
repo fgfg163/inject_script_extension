@@ -6,15 +6,13 @@
       parentDom = document.body;
     }
 
-
-    var scriptStrList = source.match(/<script(.*?)>(.*?)<\/script>/g);
-    var result = source.replace(/<script(.*?)>(.*?)<\/script>/g, "");
-
     var container = document.createElement('div');
-    container.innerHTML = scriptStrList.join("");
+    container.innerHTML = source;
     var scriptDomList = container.querySelectorAll("script");
+    scriptDomList.forEach(function (script) {
+      container.removeChild(script);
+    });
 
-    container.innerHTML = result;
     parentDom.appendChild(container);
 
     function loadScript(element) {
