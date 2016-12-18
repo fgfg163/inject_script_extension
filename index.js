@@ -29,10 +29,11 @@
         }
 
         if (!!element.src) {
-          script.onload = script.onreadystatechange = function () {
-            if (!script.readyState || /loaded|complete/.test(script.readyState)) {
-              resolve();
-            }
+          script.onload = function () {
+            resolve();
+          }
+          script.onerror = function () {
+            resolve();
           }
         }
 
