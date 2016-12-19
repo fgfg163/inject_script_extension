@@ -28,7 +28,7 @@
           script.innerHTML = element.innerHTML;
         }
 
-        if (!!element.src && !element.async) {
+        if (!!element.src && (element.async == true || element.async == null)) {
           script.onerror = script.onload = function () {
             resolve();
           }
@@ -36,7 +36,7 @@
 
         container.appendChild(script);
 
-        if (!element.src || element.async) {
+        if (!element.src || element.async === false) {
           resolve();
         }
       });
