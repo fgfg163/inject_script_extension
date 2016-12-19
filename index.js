@@ -28,18 +28,15 @@
           script.innerHTML = element.innerHTML;
         }
 
-        if (!!element.src) {
-          script.onload = function () {
-            resolve();
-          }
-          script.onerror = function () {
+        if (!!element.src && !element.async) {
+          script.onerror = script.onload = function () {
             resolve();
           }
         }
 
         container.appendChild(script);
 
-        if (!element.src) {
+        if (!element.src || element.async) {
           resolve();
         }
       });
