@@ -27,8 +27,9 @@
         } else {
           script.innerHTML = element.innerHTML;
         }
-
-        if (!!element.src && (element.async == true || element.async == null)) {
+        var elementAsync = element.getAttribute("async");
+        elementAsync = elementAsync == true || elementAsync == null ? true : false;
+        if (!!element.src && elementAsync) {
           script.onerror = script.onload = function () {
             resolve();
           }
@@ -36,7 +37,7 @@
 
         container.appendChild(script);
 
-        if (!element.src || element.async === false) {
+        if (!element.src || !elementAsync) {
           resolve();
         }
       });
