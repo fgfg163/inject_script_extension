@@ -1,6 +1,6 @@
 co(function*() {
   const chromep = new ChromePromise();
-  const {storageKey} = defaultSetting;
+  const {storageKey, storageSourceKey, storageSourceKeySuffixMax} = defaultSetting;
   const fileReader = FileReaderPromise();
 
   const onSaveClick = (event) => {
@@ -8,13 +8,33 @@ co(function*() {
       let theSource = $('#input').val();
       let theParent = $('#parent_selector').val();
       let theMode = $('[name="mode"]:checked').val();
-      yield chromep.storage.sync.set({
+
+      let theSourceArray = splitByLength(theSource, 7800);
+      if (theSourceArray.length > storageSourceKeySuffixMax) {
+        $('#extra')[0].innerHTML = `<span style="color:red">script is too large!!!</span>`;
+        return;
+      }
+
+      let saveObj = {
         [storageKey]: {
-          source: theSource,
           parent: theParent,
           mode: theMode
         }
+      };
+
+
+      for (let key = 0; key < storageSourceKeySuffixMax; key++) {
+        let theKey = storageSourceKey + "-" + key;
+        saveObj[theKey] = "";
+      }
+
+      theSourceArray.slice(0, storageSourceKeySuffixMax);
+      theSourceArray.forEach((element, index) => {
+        saveObj[storageSourceKey + "-" + index] = element;
       });
+
+      yield chromep.storage.sync.set(saveObj);
+
       $('#extra')[0].innerHTML = `<span style="color:red">save success !</span>`;
       yield sleep(2000);
       $('#extra')[0].innerText = "";
@@ -48,11 +68,23 @@ co(function*() {
       onSaveClick();
     });
   });
+  co(function*() {
+    var sourceKeyList = [];
+    for (let key = 0; key < storageSourceKeySuffixMax; key++) {
+      let theKey = storageSourceKey + "-" + key;
+      sourceKeyList.push(theKey);
+    }
+    var valueArray = yield chromep.storage.sync.get([].concat([storageKey], sourceKeyList));
+    var source = sourceKeyList.map(e => valueArray[e]).join("");
 
-  let valueArray = yield chromep.storage.sync.get(storageKey);
-  if (valueArray[storageKey]) {
-    $('#input').val(valueArray[storageKey].source);
-    $('#parent_selector').val(valueArray[storageKey].parent);
-    $(`[name="mode"][value="${valueArray[storageKey].mode}"]`).attr('checked', 'true');
-  }
+    if (valueArray[storageKey]) {
+      $('#parent_selector').val(valueArray[storageKey].parent);
+      $(`[name="mode"][value="${valueArray[storageKey].mode}"]`).attr('checked', 'true');
+      $('#input').val(source);
+    }
+  });
+}).catch(function (err) {
+  console.log(err.toString());
+  console.error(err);
+  throw err;
 });

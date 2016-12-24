@@ -1,6 +1,8 @@
 (function () {
   const option = {
-    storageKey: "injectScriptToIframe",
+    storageKey: "settings",
+    storageSourceKey: "source",
+    storageSourceKeySuffixMax: 10,
   };
 
   if (typeof module === 'object' && module && typeof module.exports === 'object') {

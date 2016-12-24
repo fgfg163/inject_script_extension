@@ -1,11 +1,18 @@
 co(function *() {
   const chromep = new ChromePromise();
-  const {storageKey} = defaultSetting;
+  const {storageKey, storageSourceKey, storageSourceKeySuffixMax} = defaultSetting;
 
-  var valueArray = yield chromep.storage.sync.get(storageKey);
+  var sourceKeyList = [];
+  for (let key = 0; key < storageSourceKeySuffixMax; key++) {
+    let theKey = storageSourceKey + "-" + key;
+    sourceKeyList.push(theKey);
+  }
+
+  var valueArray = yield chromep.storage.sync.get([].concat([storageKey], sourceKeyList));
+  var source = sourceKeyList.map(e => valueArray[e]).join("");
+
   if (valueArray[storageKey]) {
     var parent = valueArray[storageKey].parent || 'body';
-    var source = valueArray[storageKey].source;
     var mode = valueArray[storageKey].mode;
 
     if (mode == "document_start") {
@@ -24,4 +31,7 @@ co(function *() {
     } else {
     }
   }
+}).catch(function (err) {
+  console.error(err);
+  throw err;
 });

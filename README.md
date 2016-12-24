@@ -6,6 +6,12 @@ Write parent query selector and script tags will append into this dom.
 Don't forget to click save btn!
 
 ![](https://github.com/fgfg163/inject_script_extension/blob/master/README/example.jpg?raw=true)
+log v0.0.9
+```
+Slice the script text into multi storage keys to hold more script text.
+
+```
+
 log v0.0.8
 ```
 Use chrome-promise to replace original chrome api.

@@ -53,6 +53,20 @@
     },
   }
 
+  exports.splitByLength = function (str, length) {
+    var result = [];
+    if (!str) {
+      return result;
+    }
+    length = length >= 1 ? length : 1;
+    var tmpStr = str;
+    while (tmpStr.length > 0) {
+      result.push(tmpStr.slice(0, length));
+      tmpStr = tmpStr.slice(length);
+    }
+    return result;
+  };
+
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
     module.exports = exports;
   } else {
