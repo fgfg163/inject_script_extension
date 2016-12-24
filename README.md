@@ -6,6 +6,16 @@ Write parent query selector and script tags will append into this dom.
 Don't forget to click save btn!
 
 ![](https://github.com/fgfg163/inject_script_extension/blob/master/README/example.jpg?raw=true)
+log v0.0.8
+```
+Use chrome-promise to replace original chrome api.
+Move some key to default-setting.
+Use filereader-promise.
+Use jquery.slim.
+Now you can drop a file to insert script instead of copy.
+
+```
+
 log v0.0.7
 ```
 Rebuild with co.js and generator/yield.
