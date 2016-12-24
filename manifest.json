@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "inject dom",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "注入标签到页面",
   "permissions": [
     "contextMenus",
@@ -28,6 +28,11 @@
         "*://*/*"
       ],
       "js": [
+        "libs/default-setting.js",
+        "libs/jquery.slim.min.js",
+        "libs/utils.js",
+        "libs/filereader-promise.js",
+        "libs/chrome-promise.js",
         "libs/co.min.js",
         "content_scripts/document_start.js"
       ],
@@ -39,6 +44,11 @@
         "*://*/*"
       ],
       "js": [
+        "libs/default-setting.js",
+        "libs/jquery.slim.min.js",
+        "libs/utils.js",
+        "libs/filereader-promise.js",
+        "libs/chrome-promise.js",
         "libs/co.min.js",
         "content_scripts/document_idle.js"
       ],
