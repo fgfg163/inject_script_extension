@@ -24,10 +24,12 @@ co(function *() {
       });
       document.head.appendChild(container);
       var scriptDomListArray = Array.from(scriptDomList);
-      for (var key in scriptDomListArray) {
-        var element = scriptDomListArray[key];
-        var result = yield loadScript(element);
-      }
+      // for (var key in scriptDomListArray) {
+      //   var element = scriptDomListArray[key];
+      //   var result = yield loadScript(element);
+      // }
+      var result = scriptDomListArray.filter(e => !!e.innerText);
+
     } else {
     }
   }
