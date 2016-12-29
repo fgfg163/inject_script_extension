@@ -1,6 +1,6 @@
 co(function*() {
   const chromep = new ChromePromise();
-  const {storageKey, storageSourceKey, storageSourceKeySuffixMax} = defaultSetting;
+  const {storageKey, storageSourceKey} = defaultSetting;
   const fileReader = FileReaderPromise();
 
   const onSaveClick = (event) => {
@@ -9,11 +9,6 @@ co(function*() {
       let theParent = $('#parent_selector').val();
       let theMode = $('[name="mode"]:checked').val();
 
-      let theSourceArray = splitByLength(theSource, 7800);
-      if (theSourceArray.length > storageSourceKeySuffixMax) {
-        $('#extra')[0].innerHTML = `<span style="color:red">script is too large!!!</span>`;
-        return;
-      }
 
       let saveObj = {
         [storageKey]: {
@@ -22,18 +17,12 @@ co(function*() {
         }
       };
 
+      saveObj[storageSourceKey] = theSource;
 
-      for (let key = 0; key < storageSourceKeySuffixMax; key++) {
-        let theKey = storageSourceKey + "-" + key;
-        saveObj[theKey] = "";
-      }
+      yield chromep.storage.local.set(saveObj);
 
-      theSourceArray.slice(0, storageSourceKeySuffixMax);
-      theSourceArray.forEach((element, index) => {
-        saveObj[storageSourceKey + "-" + index] = element;
-      });
-
-      yield chromep.storage.sync.set(saveObj);
+      let backgroundWindow = chrome.extension.getBackgroundPage();
+      backgroundWindow.initScript();
 
       $('#extra')[0].innerHTML = `<span style="color:red">save success !</span>`;
       yield sleep(2000);
@@ -70,12 +59,8 @@ co(function*() {
   });
   co(function*() {
     var sourceKeyList = [];
-    for (let key = 0; key < storageSourceKeySuffixMax; key++) {
-      let theKey = storageSourceKey + "-" + key;
-      sourceKeyList.push(theKey);
-    }
-    var valueArray = yield chromep.storage.sync.get([].concat([storageKey], sourceKeyList));
-    var source = sourceKeyList.map(e => valueArray[e]).join("");
+    var valueArray = yield chromep.storage.local.get([storageKey, storageSourceKey]);
+    var source = valueArray[storageSourceKey];
 
     if (valueArray[storageKey]) {
       $('#parent_selector').val(valueArray[storageKey].parent);

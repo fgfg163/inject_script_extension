@@ -1,8 +1,7 @@
 (function () {
   const option = {
     storageKey: "settings",
-    storageSourceKey: "source",
-    storageSourceKeySuffixMax: 10,
+    storageSourceKey: "source"
   };
 
   if (typeof module === 'object' && module && typeof module.exports === 'object') {
