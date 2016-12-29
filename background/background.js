@@ -69,11 +69,11 @@
     }
   });
 
-  chrome.webRequest.onCompleted.addListener(function (detail, ...param) {
-      return {};
-    }, {
-      urls: ["<all_urls>"],
-    },
-    ["responseHeaders"]
-  );
+  // chrome.webRequest.onCompleted.addListener(function (detail, ...param) {
+  //     return {};
+  //   }, {
+  //     urls: ["<all_urls>"],
+  //   },
+  //   ["responseHeaders"]
+  // );
 })();
