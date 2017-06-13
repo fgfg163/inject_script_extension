@@ -1,72 +1,84 @@
-(function (global) {
-  const chromep = new ChromePromise();
-  const {storageKey, storageSourceKey} = defaultSetting;
+const global = window;
 
-  let theParent = "";
-  let theModal = "";
-  let theRunScript = "";
+const chromep = new ChromePromise();
+const { storageKey, storageSourceKey } = defaultSetting;
 
-  global.initScript = function () {
-    co(function *() {
-      let valueArray;
-      valueArray = yield chromep.storage.local.get([storageKey, storageSourceKey]);
-      let source = valueArray[storageSourceKey];
+let theModal = '';
+let theRunScript = '';
 
-      if (valueArray[storageKey]) {
-        let parent = theParent = valueArray[storageKey].parent || 'body';
-        let mode = theModal = valueArray[storageKey].mode;
+global.initScript = function () {
+  co(function *() {
+    let valueArray;
+    valueArray = yield chromep.storage.local.get([storageKey, storageSourceKey]);
+    let source = valueArray[storageSourceKey];
 
-        if (mode && mode != "close") {
-          let container = document.createElement('div');
-          container.innerHTML = source;
-          let scriptDomList = container.querySelectorAll("script");
-          scriptDomList.forEach(function (script) {
-            container.removeChild(script);
-          });
-          document.head.appendChild(container);
-          let scriptDomListArray = Array.from(scriptDomList);
+    if (valueArray[storageKey]) {
+      theModal = valueArray[storageKey].mode;
 
-          let scriptPromiseList = scriptDomListArray.map(script => {
-            if (!!script.src) {
-              let theSrc = script.src.replace(/^.*?:\/\//, "http://");
-              return fetch(theSrc).then(v => v.text()).catch(err => `console.error('GET ${theSrc}');`);
-            } else {
-              return Promise.resolve(script.innerText);
+      if (theModal && theModal != 'close') {
+        const container = document.createElement('div');
+        container.innerHTML = source;
+        const scriptDomList = container.querySelectorAll('script');
+        scriptDomList.forEach(function (script) {
+          container.removeChild(script);
+        });
+        document.head.appendChild(container);
+        const scriptDomListArray = Array.from(scriptDomList);
+
+        let scriptPromiseList = scriptDomListArray.map(script => {
+          if (!!script.src) {
+            const theSrc = script.src.replace(/^.*?:\/\//, 'http://');
+            return fetch(theSrc).then(v => v.text()).catch(err => `;(function(){console.error('GET ${theSrc}');})();`);
+          } else {
+            return Promise.resolve(script.innerText);
+          }
+        });
+
+        let scriptTextList = yield Promise.all(scriptPromiseList);
+        theRunScript = scriptTextList.join('\n;\n');
+        theRunScript = JSON.stringify(theRunScript);
+
+        chrome.tabs.query({}, function (tabs) {
+          tabs.forEach(tab => {
+            if (tab.url.slice(0, 7) === 'http://' || tab.url.slice(0, 8) === 'https://') {
+              chrome.tabs.executeScript(tab.id, {
+                code: `;(${function (s) {
+                  const theScript = document.createElement('script');
+                  theScript.innerHTML = s;
+                  document.querySelector('*').appendChild(theScript);
+                }.toString()})(${theRunScript});`,
+                allFrames: true,
+                runAt: theModal,
+              });
             }
           });
+        });
 
-          let scriptTextList = yield Promise.all(scriptPromiseList);
-          theRunScript = scriptTextList.join("\n;\n");
-
-          chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(tab => {
-              if (/^https?:\/\//.test(tab.url)) {
-                chrome.tabs.sendMessage(tab.id, {type: "SEND_SOURCE", parent, mode, source: theRunScript});
-              }
-            });
-          });
-        }
       }
-    }).catch(function (err) {
-      console.error(err);
-      throw err;
-    });
-  }
-
-  global.initScript();
-
-  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    let theUrl = changeInfo.url || tab.url;
-    if (changeInfo.status == "loading" && /^https?:\/\//.test(theUrl)) {
-      chrome.tabs.sendMessage(tabId, {type: "SEND_SOURCE", parent: theParent, mode: theModal, source: theRunScript});
     }
+  }).catch(function (err) {
+    console.error(err);
+    throw err;
   });
+}
 
-  // chrome.webRequest.onCompleted.addListener(function (detail, ...param) {
-  //     return {};
-  //   }, {
-  //     urls: ["<all_urls>"],
-  //   },
-  //   ["responseHeaders"]
-  // );
-})(window);
+global.initScript();
+
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (theModal && theModal !== 'close') {
+    if (changeInfo.status === 'loading') {
+      if (tab.url.slice(0, 7) === 'http://' || tab.url.slice(0, 8) === 'https://') {
+        chrome.tabs.executeScript(tabId, {
+          code: `;(${function (s) {
+            const theScript = document.createElement('script');
+            theScript.innerHTML = s;
+            document.querySelector('*').appendChild(theScript);
+          }.toString()})(${theRunScript});`,
+          allFrames: true,
+          runAt: theModal,
+        });
+      }
+    }
+  }
+});

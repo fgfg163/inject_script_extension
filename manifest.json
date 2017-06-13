@@ -5,8 +5,6 @@
   "description": "注入标签到页面",
   "permissions": [
     "contextMenus",
-    "clipboardWrite",
-    "clipboardRead",
     "storage",
     "webRequest",
     "webRequestBlocking",

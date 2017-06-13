@@ -1,18 +1,16 @@
 co(function*() {
   const chromep = new ChromePromise();
-  const {storageKey, storageSourceKey} = defaultSetting;
+  const { storageKey, storageSourceKey } = defaultSetting;
   const fileReader = FileReaderPromise();
 
   const onSaveClick = (event) => {
     co(function *() {
       let theSource = $('#input').val();
-      let theParent = $('#parent_selector').val();
       let theMode = $('[name="mode"]:checked').val();
 
 
       let saveObj = {
         [storageKey]: {
-          parent: theParent,
           mode: theMode
         }
       };
@@ -63,7 +61,6 @@ co(function*() {
     var source = valueArray[storageSourceKey];
 
     if (valueArray[storageKey]) {
-      $('#parent_selector').val(valueArray[storageKey].parent);
       $(`[name="mode"][value="${valueArray[storageKey].mode}"]`).attr('checked', 'true');
       $('#input').val(source);
     }
